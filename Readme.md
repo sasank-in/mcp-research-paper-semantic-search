@@ -14,20 +14,24 @@ A production-ready semantic search engine for research papers using vector embed
 # Install dependencies
 pip install -r requirements.txt
 
+# Configure .env with your Groq API key
+GROQ_API_KEY=your_key_here
+
 # Setup database
 python main.py setup
 
 # Ingest papers
 python main.py ingest
 
-# Search papers
-python main.py search "attention mechanism in transformers"
-
-# Start API (optional)
+# Start web UI
 python main.py api
+# Then open http://localhost:8000
+
+# Or search via CLI
+python main.py search "attention mechanism in transformers"
 ```
 
-See [START_HERE.md](START_HERE.md) or [QUICKSTART.md](QUICKSTART.md) for detailed setup instructions.
+See [START_HERE.md](START_HERE.md) or [UI_GUIDE.md](UI_GUIDE.md) for detailed setup instructions.
 
 ## 📋 Table of Contents
 
@@ -58,10 +62,13 @@ The system processes research papers, converts their textual content into vector
 - **CLI Interface**: Simple command-line operations
 - **Production Ready**: Error handling, testing, and documentation
 
-## ✨ Features
+## ✨ Key Features
 
+- ✅ **Professional Web UI** - Modern corporate-style interface
+- ✅ **Semantic Search** - Search by meaning, not keywords
+- ✅ **AI Chat Assistant** - RAG-powered chat with Groq AI
 - ✅ PDF document ingestion pipeline
-- ✅ Semantic search using 768-dimensional embeddings
+- ✅ 768-dimensional embeddings (all-mpnet-base-v2)
 - ✅ PostgreSQL + pgvector for efficient vector storage
 - ✅ REST API with FastAPI and interactive documentation
 - ✅ Command-line interface for all operations
@@ -70,15 +77,32 @@ The system processes research papers, converts their textual content into vector
 - ✅ Comprehensive error handling and logging
 - ✅ Automated testing suite
 - ✅ Environment-based configuration
+- ✅ Responsive design for all devices
 
-## 🎯 Objectives
+## 🎨 Web Interface
 
-The main goals of this project are:
+The application includes a professional corporate-style web UI with:
 
-- Build a vector-based document retrieval system
-- Store text embeddings in PostgreSQL
-- Perform semantic similarity search
-- Enable AI-powered document discovery
+### Semantic Search Tab
+- Search papers by meaning, not keywords
+- Adjustable result count (3, 5, or 10)
+- Similarity scores for each result
+- Source paper identification
+
+### AI Assistant Chat Tab
+- Interactive chat with Groq AI models
+- RAG-powered responses using paper context
+- Conversation history
+- Toggle context usage on/off
+- Example questions to get started
+
+**Access the UI:**
+```bash
+python main.py api
+# Open http://localhost:8000
+```
+
+See [UI_GUIDE.md](UI_GUIDE.md) for complete UI documentation.
 
 ## 🏗️ System Architecture
 
@@ -179,13 +203,23 @@ pip install -r requirements.txt
 Create a `.env` file (or copy from `.env.example`):
 
 ```bash
+# Database Configuration
 DB_NAME=vector_db
 DB_USER=postgres
 DB_PASSWORD=your_password
 DB_HOST=localhost
 DB_PORT=5432
 DB_TABLE=paper_chunks
+
+# Groq AI Configuration (for chat feature)
+GROQ_API_KEY=your_groq_api_key_here
+GROQ_MODEL=llama-3.1-70b-versatile
 ```
+
+**Get Groq API Key:**
+1. Visit https://console.groq.com
+2. Sign up/login and create an API key
+3. Add it to `.env`
 
 **Configuration Options:**
 
@@ -197,6 +231,8 @@ DB_TABLE=paper_chunks
 | DB_HOST | Database host | localhost |
 | DB_PORT | Database port | 5432 |
 | DB_TABLE | Table name for chunks | paper_chunks |
+| GROQ_API_KEY | Groq API key for chat | required |
+| GROQ_MODEL | AI model to use | llama-3.1-70b-versatile |
 
 ### Step 4: Initialize Database
 
@@ -334,7 +370,7 @@ Interactive API documentation available at http://localhost:8000/docs
 │   ├── db_setup.py            # Database initialization
 │   └── db_connection.py       # Database connection
 ├── main.py                     # CLI entry point
-├── test_system.py             # Test suite
+├── start_ui.py                 # UI server launcher
 ├── requirements.txt           # Dependencies
 └── .env                       # Configuration
 ```
@@ -351,20 +387,23 @@ See [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md) for detailed structure.
 - **[CHECKLIST.md](CHECKLIST.md)** - Setup verification checklist
 - **[SUMMARY.md](SUMMARY.md)** - Project summary
 
-## 🧪 Testing
+## 🧪 Verification
 
-Run the test suite to verify your installation:
+To verify your installation is working correctly:
 
 ```bash
-python test_system.py
+# Start the application
+python start_ui.py
+
+# Open http://localhost:8000 in your browser
+# Test both Semantic Search and AI Assistant tabs
 ```
 
-This tests:
-- Module imports
-- PDF loading
-- Document chunking
-- Embedding generation
-- Database connectivity
+The system is working correctly if:
+- ✅ UI loads without errors
+- ✅ Search returns relevant results  
+- ✅ AI Assistant responds to messages
+- ✅ File management works properly
 
 ## 💡 Examples
 

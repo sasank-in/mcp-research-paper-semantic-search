@@ -1,72 +1,78 @@
 #!/usr/bin/env python3
 """
-Main entry point for the Research Paper Semantic Search System
+Quick start script for the Research Paper AI Assistant UI
 """
-import argparse
-import sys
 import os
+import sys
+from dotenv import load_dotenv
 
-def setup_database():
-    """Setup database and tables"""
-    from utils.db_setup import create_database, setup_vector_extension
-    print("Setting up database...")
-    create_database()
-    setup_vector_extension()
-    print("\nDatabase setup complete!")
+def check_requirements():
+    """Check if all requirements are met"""
+    print("Checking requirements...")
+    
+    # Check .env file
+    if not os.path.exists('.env'):
+        print("ERROR: .env file not found!")
+        print("   Please copy .env.example to .env and configure it")
+        return False
+    
+    load_dotenv()
+    
+    # Check Groq API key
+    groq_key = os.getenv('GROQ_API_KEY')
+    if not groq_key or groq_key == 'your_groq_api_key_here':
+        print("ERROR: GROQ_API_KEY not configured!")
+        print("   Please add your Groq API key to .env")
+        print("   Get one at: https://console.groq.com")
+        return False
+    
+    # Check database config
+    db_name = os.getenv('DB_NAME')
+    if not db_name:
+        print("ERROR: Database not configured!")
+        print("   Please configure database settings in .env")
+        return False
+    
+    # Check frontend files
+    if not os.path.exists('frontend/index.html'):
+        print("ERROR: Frontend files not found!")
+        print("   Please ensure frontend/ directory exists")
+        return False
+    
+    print("SUCCESS: All requirements met!")
+    return True
 
-def run_ingestion():
-    """Run the ingestion pipeline"""
-    from ingestion.pipeline import run_ingestion_pipeline
-    run_ingestion_pipeline()
-
-def run_search(query, top_k=5):
-    """Run a search query"""
-    from retrieval.query_engine import search_similar_papers, display_results
-    print(f"\nSearching for: '{query}'")
-    results = search_similar_papers(query, top_k)
-    display_results(results)
-
-def start_api():
+def start_server():
     """Start the FastAPI server"""
+    print("\n" + "="*60)
+    print("Starting Research Paper AI Assistant")
+    print("="*60)
+    print("\nAccess the application at:")
+    print("   Web UI:  http://localhost:8000")
+    print("   API Docs: http://localhost:8000/docs")
+    print("\nFeatures:")
+    print("   - Semantic Search - Search papers by meaning")
+    print("   - AI Chat - Interactive assistant with RAG")
+    print("\nPress Ctrl+C to stop the server")
+    print("="*60 + "\n")
+    
     import uvicorn
     from api.app import app
-    print("Starting API server on http://localhost:8000")
-    print("API documentation available at http://localhost:8000/docs")
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    
+    uvicorn.run(app, host="127.0.0.1", port=8000)
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="Research Paper Semantic Search System"
-    )
+    if not check_requirements():
+        print("\nPlease fix the issues above and try again")
+        sys.exit(1)
     
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-    
-    # Setup command
-    subparsers.add_parser("setup", help="Setup database and tables")
-    
-    # Ingest command
-    subparsers.add_parser("ingest", help="Run ingestion pipeline")
-    
-    # Search command
-    search_parser = subparsers.add_parser("search", help="Search for papers")
-    search_parser.add_argument("query", type=str, help="Search query")
-    search_parser.add_argument("--top-k", type=int, default=5, help="Number of results")
-    
-    # API command
-    subparsers.add_parser("api", help="Start API server")
-    
-    args = parser.parse_args()
-    
-    if args.command == "setup":
-        setup_database()
-    elif args.command == "ingest":
-        run_ingestion()
-    elif args.command == "search":
-        run_search(args.query, args.top_k)
-    elif args.command == "api":
-        start_api()
-    else:
-        parser.print_help()
+    try:
+        start_server()
+    except KeyboardInterrupt:
+        print("\n\nServer stopped. Goodbye!")
+    except Exception as e:
+        print(f"\nError: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

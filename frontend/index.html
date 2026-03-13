@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Research Paper AI Assistant</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <i class="fas fa-brain"></i>
+                    <span>Research AI</span>
+                </div>
+                <nav class="nav">
+                    <button class="nav-btn active" data-tab="search">
+                        <i class="fas fa-search"></i>
+                        <span>Semantic Search</span>
+                    </button>
+                    <button class="nav-btn" data-tab="chat">
+                        <i class="fas fa-comments"></i>
+                        <span>AI Assistant</span>
+                    </button>
+                </nav>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main">
+        <div class="container">
+            <!-- Search Tab -->
+            <div class="tab-content active" id="search-tab">
+                <div class="search-section">
+                    <div class="search-header">
+                        <h1>Semantic Paper Search</h1>
+                        <p>Search research papers by meaning, not just keywords</p>
+                    </div>
+                    
+                    <div class="search-box">
+                        <input 
+                            type="text" 
+                            id="search-input" 
+                            placeholder="e.g., attention mechanism in transformers..."
+                            class="search-input"
+                        >
+                        <div class="search-controls">
+                            <label class="control-label">
+                                Results:
+                                <select id="top-k-select" class="select-input">
+                                    <option value="3">3</option>
+                                    <option value="5" selected>5</option>
+                                    <option value="10">10</option>
+                                </select>
+                            </label>
+                            <button id="search-btn" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="search-results" class="results-container"></div>
+                </div>
+            </div>
+
+            <!-- Chat Tab -->
+            <div class="tab-content" id="chat-tab">
+                <div class="chat-section">
+                    <div class="chat-header">
+                        <div>
+                            <h1>AI Research Assistant</h1>
+                            <p>Ask questions about research papers and AI topics</p>
+                        </div>
+                        <div class="header-actions">
+                            <button id="manage-files-btn" class="btn btn-secondary">
+                                <i class="fas fa-file-pdf"></i>
+                                Manage Files
+                            </button>
+                            <button id="clear-chat-btn" class="btn btn-secondary">
+                                <i class="fas fa-trash"></i>
+                                Clear Chat
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chat-container">
+                        <div id="chat-messages" class="chat-messages">
+                            <div class="welcome-message">
+                                <i class="fas fa-robot"></i>
+                                <h3>Welcome to AI Research Assistant</h3>
+                                <p>I can help you understand research papers and answer questions about AI, machine learning, and deep learning.</p>
+                                <div class="example-questions">
+                                    <p><strong>Try asking:</strong></p>
+                                    <button class="example-btn">Explain the attention mechanism</button>
+                                    <button class="example-btn">What is a transformer model?</button>
+                                    <button class="example-btn">How does ResNet work?</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="chat-input-container">
+                            <div class="chat-options">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" id="use-rag" checked>
+                                    <span>Use paper context (RAG)</span>
+                                </label>
+                                <div class="file-selector">
+                                    <label for="file-select">
+                                        <i class="fas fa-file"></i>
+                                        Focus on:
+                                    </label>
+                                    <select id="file-select" class="select-input">
+                                        <option value="">All papers</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="chat-input-box">
+                                <textarea 
+                                    id="chat-input" 
+                                    placeholder="Ask a question about research papers..."
+                                    rows="1"
+                                ></textarea>
+                                <button id="send-btn" class="btn btn-primary">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div id="loading-overlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <p>Processing...</p>
+    </div>
+
+    <!-- File Manager Modal -->
+    <div id="file-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-file-pdf"></i> Manage Research Papers</h2>
+                <button class="modal-close" id="close-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-section">
+                    <h3>Upload New Paper</h3>
+                    <div class="upload-box" id="upload-box">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Drag & drop PDF file here or click to browse</p>
+                        <input type="file" id="file-input" accept=".pdf" hidden>
+                        <button class="btn btn-primary" id="browse-btn">
+                            <i class="fas fa-folder-open"></i>
+                            Browse Files
+                        </button>
+                    </div>
+                    <div id="upload-progress" class="upload-progress" style="display: none;">
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <p class="progress-text">Uploading...</p>
+                    </div>
+                </div>
+                <div class="files-section">
+                    <h3>Available Papers</h3>
+                    <div id="files-list" class="files-list">
+                        <p class="loading-text">Loading files...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
