@@ -25,7 +25,8 @@ const elements = {
     sendBtn: document.getElementById('send-btn'),
     clearChatBtn: document.getElementById('clear-chat-btn'),
     useRagCheckbox: document.getElementById('use-rag'),
-    exampleBtns: document.querySelectorAll('.example-btn'),
+    exampleBtns: document.querySelectorAll('#chat-tab .example-btn'),
+    searchExampleBtns: document.querySelectorAll('#search-tab .example-btn'),
     fileSelect: document.getElementById('file-select'),
     searchFileSelect: document.getElementById('search-file-select'),
     manageFilesBtn: document.getElementById('manage-files-btn'),
@@ -203,11 +204,25 @@ const UI = {
     
     renderSearchResults(results) {
         if (!results || results.length === 0) {
-            elements.searchResults.innerHTML = `
+            const nothingIndexed = !state.availableFiles
+                || !state.availableFiles.some(f => f.indexed);
+            elements.searchResults.innerHTML = nothingIndexed
+                ? `
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <h3>No papers indexed yet</h3>
+                    <p>
+                        Add a PDF with <strong>Manage Files</strong> in the AI
+                        Assistant tab, then click <strong>Process</strong> to make
+                        it searchable.
+                    </p>
+                </div>
+            `
+                : `
                 <div class="empty-state">
                     <i class="fas fa-search"></i>
                     <h3>No results found</h3>
-                    <p>Try a different search query</p>
+                    <p>Try rephrasing, or widen <strong>In:</strong> to all papers.</p>
                 </div>
             `;
             return;
@@ -219,14 +234,19 @@ const UI = {
             const pageLabel = result.page !== null && result.page !== undefined
                 ? ` &middot; page ${result.page + 1}`
                 : '';
+            // A uniformly green badge implies every hit is a strong match.
+            // Grade it so a weak result reads as weak.
+            const strength = result.similarity >= 0.5
+                ? 'strong'
+                : result.similarity >= 0.35 ? 'moderate' : 'weak';
             
             return`
                 <div class="result-card">
                     <div class="result-header">
                         <span class="result-number">Result ${index + 1}</span>
-                        <span class="similarity-badge">
-                            <i class="fas fa-check-circle"></i>
-                            ${similarity}% Match
+                        <span class="similarity-badge similarity-${strength}"
+                              title="Cosine similarity to your query">
+                            ${similarity}% match
                         </span>
                     </div>
                     <div class="result-source">
@@ -698,11 +718,19 @@ function initEventListeners() {
     
     elements.uploadBox.addEventListener('click', () => elements.fileInput.click());
     
-    // Example questions
+    // Example questions (chat tab)
     elements.exampleBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            elements.chatInput.value = btn.textContent;
+            elements.chatInput.value = btn.textContent.trim();
             elements.chatInput.focus();
+        });
+    });
+
+    // Example queries (search tab) - fill the box and run the search.
+    elements.searchExampleBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            elements.searchInput.value = btn.dataset.query || btn.textContent.trim();
+            handlers.handleSearch();
         });
     });
 }

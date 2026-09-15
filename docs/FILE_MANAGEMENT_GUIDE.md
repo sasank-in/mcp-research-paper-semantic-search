@@ -25,11 +25,15 @@ Returns the matching passages themselves — no LLM, so it is fast and cheap.
 4. Press **Enter** or click the search button.
 
 Each result shows the passage text, its source filename and page, and a match
-percentage. Scores are relative to your corpus: 45% may be the best available
-match in one collection and mediocre in another, so compare results against
-each other rather than against a fixed threshold.
+percentage colored by strength — green above 50%, amber 35–50%, grey below.
+Scores are relative to your corpus: 45% may be the best available match in one
+collection and mediocre in another, so compare results against each other
+rather than against a fixed threshold.
 
-Example queries are provided as one-click buttons to get you started.
+Before your first search the results area offers example queries; clicking one
+runs it.
+
+
 
 ### AI Assistant
 

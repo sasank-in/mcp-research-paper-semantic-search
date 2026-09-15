@@ -63,14 +63,35 @@
                                     <option value="">All papers</option>
                                 </select>
                             </label>
-                            <button id="search-btn" class="btn btn-primary">
+                            <button id="search-btn" class="btn btn-primary" aria-label="Run search">
                                 <i class="fas fa-search"></i>
                                 Search
                             </button>
                         </div>
                     </div>
 
-                    <div id="search-results" class="results-container"></div>
+                    <div id="search-results" class="results-container" role="region" aria-live="polite" aria-label="Search results">
+                        <div class="empty-state search-empty-state">
+                            <i class="fas fa-magnifying-glass"></i>
+                            <h3>Search your papers by meaning</h3>
+                            <p>
+                                Results are ranked by semantic similarity, so a
+                                query finds relevant passages even when it shares
+                                no words with them.
+                            </p>
+                            <div class="example-queries">
+                                <button class="example-btn" data-query="attention mechanism in transformers">
+                                    attention mechanism in transformers
+                                </button>
+                                <button class="example-btn" data-query="how are positions encoded in a sequence">
+                                    how are positions encoded in a sequence
+                                </button>
+                                <button class="example-btn" data-query="what makes training deep networks difficult">
+                                    what makes training deep networks difficult
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -95,7 +116,7 @@
                     </div>
 
                     <div class="chat-container">
-                        <div id="chat-messages" class="chat-messages">
+                        <div id="chat-messages" class="chat-messages" role="log" aria-live="polite" aria-label="Conversation">
                             <div class="welcome-message">
                                 <i class="fas fa-robot"></i>
                                 <h3>Welcome to AI Research Assistant</h3>
@@ -131,7 +152,7 @@
                                     placeholder="Ask a question about research papers..."
                                     rows="1"
                                 ></textarea>
-                                <button id="send-btn" class="btn btn-primary">
+                                <button id="send-btn" class="btn btn-primary" aria-label="Send message">
                                     <i class="fas fa-paper-plane"></i>
                                 </button>
                             </div>
@@ -153,7 +174,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2><i class="fas fa-file-pdf"></i> Manage Research Papers</h2>
-                <button class="modal-close" id="close-modal">
+                <button class="modal-close" id="close-modal" aria-label="Close file manager">
                     <i class="fas fa-times"></i>
                 </button>
             </div>
