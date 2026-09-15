@@ -80,7 +80,13 @@ different address:
 ```bash
 python cmd_basis.py api --port 8080
 python cmd_basis.py api --host 0.0.0.0    # reachable from other machines
+python cmd_basis.py api --reload          # restart on code changes
 ```
+
+The server loads your code once at startup, so **edits to Python files take
+effect only after a restart**. If you are changing code, use `--reload` and it
+restarts itself. (Edits to HTML, CSS and JS need only a browser refresh —
+Ctrl+Shift+R to bypass the cache.)
 
 Note that CORS is wide open by default, so tighten it before binding to a
 public interface.

@@ -91,7 +91,11 @@ def cmd_api(args):
     print(f"Starting API on http://{args.host}:{args.port}")
     print(f"  Web UI:   http://{args.host}:{args.port}/")
     print(f"  API docs: http://{args.host}:{args.port}/docs")
-    uvicorn.run("api.app:app", host=args.host, port=args.port)
+    if args.reload:
+        print("  Auto-reload enabled: code changes restart the server.")
+    uvicorn.run(
+        "api.app:app", host=args.host, port=args.port, reload=args.reload
+    )
 
 
 def cmd_mcp(args):
@@ -128,6 +132,11 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("api", help="Start the web UI and REST API")
     p.add_argument("--host", default="127.0.0.1")
     p.add_argument("--port", type=int, default=8000)
+    p.add_argument(
+        "--reload",
+        action="store_true",
+        help="Restart automatically when source files change (development)",
+    )
 
     sub.add_parser("mcp", help="Run the MCP server over stdio")
 

@@ -491,6 +491,7 @@ python cmd_basis.py search "query" --top-k 5   # semantic search
 python cmd_basis.py ask "question"             # answer with citations
 python cmd_basis.py list                       # list indexed papers
 python cmd_basis.py api --port 8080            # web UI + REST API, custom port
+python cmd_basis.py api --reload              # restart on code changes
 python cmd_basis.py mcp                        # MCP server over stdio
 ```
 
