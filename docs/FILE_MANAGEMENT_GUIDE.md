@@ -1,260 +1,155 @@
-# 📁 File Management Guide
+# Web UI Guide
 
-## 🎯 New Features Added
+How to use the browser interface at `http://127.0.0.1:8000`. Start it with:
 
-Your AI Assistant now supports advanced file management:
-
-1. **Select Existing Papers** - Choose from pre-loaded research papers
-2. **Upload New PDFs** - Add your own research papers
-3. **Focus Chat on Specific Papers** - Get targeted responses
-4. **Process Uploaded Files** - Add new papers to the searchable database
-
-## 🚀 How to Use
-
-### 1. Access File Management
-
-Click the **"Manage Files"** button in the AI Assistant tab to open the file manager modal.
-
-### 2. View Available Papers
-
-The modal shows all available papers in two categories:
-- **Existing** - Pre-loaded research papers (blue badge)
-- **Uploaded** - Your uploaded papers (green badge)
-
-### 3. Upload New Papers
-
-**Method 1: Drag & Drop**
-- Drag a PDF file into the upload area
-- File will upload automatically
-
-**Method 2: Browse**
-- Click "Browse Files" button
-- Select PDF from your computer
-- File uploads immediately
-
-**Requirements:**
-- Only PDF files accepted
-- Maximum file size: 50MB
-- File will be saved to `data/uploads/`
-
-### 4. Process Uploaded Files
-
-After uploading:
-1. Click **"Process"** button next to uploaded file
-2. System will:
-   - Extract text from PDF
-   - Split into chunks
-   - Generate embeddings
-   - Add to searchable database
-3. File becomes available for chat context
-
-### 5. Select Papers for Chat
-
-**Option 1: From File Manager**
-- Click **"Select"** button next to any paper
-- Modal closes and paper is selected
-
-**Option 2: From Chat Interface**
-- Use the "Focus on:" dropdown in chat
-- Select specific paper or "All papers"
-
-### 6. Chat with Selected Papers
-
-When a paper is selected:
-- AI responses will prioritize that paper's content
-- Source citations will show which papers were used
-- Toggle RAG on/off to control context usage
-
-## 🎨 UI Features
-
-### File Manager Modal
-- **Professional Design** - Clean, corporate styling
-- **Drag & Drop** - Intuitive file upload
-- **Progress Indicators** - Visual upload feedback
-- **File Information** - Size, type, status badges
-- **Action Buttons** - Select, Process, Clear actions
-
-### Chat Enhancements
-- **File Selector** - Dropdown to choose focus paper
-- **Source Tags** - Shows which papers were referenced
-- **Context Indicators** - Visual feedback when RAG is used
-- **Smart Responses** - AI adapts based on selected paper
-
-### Notifications
-- **Upload Success** - Confirms file uploaded
-- **Processing Status** - Shows when file is being processed
-- **Error Messages** - Clear feedback on issues
-- **Selection Feedback** - Confirms paper selection
-
-## 📊 File Information Display
-
-Each file shows:
-- **📄 File Name** - Original PDF filename
-- **⚖️ File Size** - Size in KB
-- **🏷️ Type Badge** - Existing vs Uploaded
-- **🔧 Actions** - Select, Process buttons
-
-## 🔍 Search Integration
-
-### How It Works
-1. **All Papers Mode** - Searches across all processed papers
-2. **Selected Paper Mode** - Prioritizes selected paper content
-3. **Smart Filtering** - AI focuses on relevant paper sections
-4. **Source Attribution** - Shows which papers provided context
-
-### Example Workflow
-```
-1. Upload "my-research.pdf"
-2. Click "Process" to add to database
-3. Select "my-research.pdf" from dropdown
-4. Ask: "What are the main contributions?"
-5. AI responds with content from your paper
-6. Source tag shows "my-research.pdf"
+```bash
+python main.py                 # with preflight checks
+# or
+python cmd_basis.py api
 ```
 
-## 🛠️ Technical Details
-
-### File Storage
-- **Existing Papers**: `data/papers/` (pre-loaded)
-- **Uploaded Papers**: `data/uploads/` (user uploads)
-- **Database**: PostgreSQL with vector embeddings
-
-### Processing Pipeline
-1. **PDF Loading** - Extract text using PyPDF
-2. **Text Chunking** - Split into 800-character chunks
-3. **Embedding Generation** - Create 768-dim vectors
-4. **Database Storage** - Store in `paper_chunks` table
-5. **Indexing** - Add to vector search index
-
-### API Endpoints
-- `GET /api/files` - List available files
-- `POST /api/files/upload` - Upload new PDF
-- `POST /api/files/process/{filename}` - Process uploaded file
-- `POST /api/chat` - Enhanced with file selection
-
-## 💡 Use Cases
-
-### Research Analysis
-```
-1. Upload your research paper
-2. Select it for focused chat
-3. Ask: "Summarize the methodology"
-4. Get targeted response from your paper
-```
-
-### Paper Comparison
-```
-1. Select "attention-paper.pdf"
-2. Ask: "How does this compare to BERT?"
-3. AI uses attention paper as primary context
-4. Provides focused comparison
-```
-
-### Literature Review
-```
-1. Upload multiple related papers
-2. Process all papers
-3. Switch between papers using dropdown
-4. Ask similar questions to compare approaches
-```
-
-### Learning & Understanding
-```
-1. Select complex paper (e.g., "transformer.pdf")
-2. Ask: "Explain this paper simply"
-3. Get explanation focused on that specific paper
-4. Follow up with detailed questions
-```
-
-## 🎯 Best Practices
-
-### For Better Results
-1. **Process Before Chatting** - Always process uploaded files first
-2. **Use Specific Questions** - Ask about particular sections or concepts
-3. **Select Relevant Papers** - Choose papers related to your question
-4. **Enable RAG** - Keep context enabled for paper-specific questions
-
-### File Organization
-1. **Descriptive Names** - Use clear, descriptive PDF filenames
-2. **Relevant Content** - Upload papers related to your research area
-3. **Quality PDFs** - Ensure PDFs have extractable text (not just images)
-4. **Reasonable Size** - Keep files under 50MB for best performance
-
-## 🐛 Troubleshooting
-
-### Upload Issues
-**Problem**: File won't upload
-**Solutions**:
-- Check file is PDF format
-- Ensure file size < 50MB
-- Verify internet connection
-- Try different browser
-
-### Processing Errors
-**Problem**: "Error processing file"
-**Solutions**:
-- Ensure PDF has extractable text
-- Check file isn't corrupted
-- Verify database is running
-- Try re-uploading file
-
-### Chat Not Using Selected Paper
-**Problem**: AI not focusing on selected paper
-**Solutions**:
-- Ensure RAG is enabled
-- Verify paper was processed
-- Check paper contains relevant content
-- Try more specific questions
-
-### No Files Showing
-**Problem**: File list is empty
-**Solutions**:
-- Check `data/papers/` has PDF files
-- Run ingestion: `python main.py ingest`
-- Refresh browser page
-- Check console for errors
-
-## 🎉 Benefits
-
-### Enhanced Productivity
-- **Focused Research** - Get answers from specific papers
-- **Quick Upload** - Add new papers instantly
-- **Smart Context** - AI understands which paper to reference
-- **Source Tracking** - Know exactly where information comes from
-
-### Better Accuracy
-- **Targeted Responses** - AI focuses on relevant content
-- **Source Attribution** - Clear citation of paper sources
-- **Context Control** - Toggle RAG on/off as needed
-- **Paper-Specific Insights** - Deep understanding of individual papers
-
-### User Experience
-- **Intuitive Interface** - Easy drag-and-drop upload
-- **Visual Feedback** - Clear progress and status indicators
-- **Professional Design** - Corporate-style UI
-- **Responsive Layout** - Works on all devices
-
-## 🚀 What's New Summary
-
-✅ **File Upload** - Drag & drop PDF upload
-✅ **File Processing** - Convert PDFs to searchable content
-✅ **Paper Selection** - Focus chat on specific papers
-✅ **Source Attribution** - See which papers provided context
-✅ **File Management** - Professional modal interface
-✅ **Smart Context** - AI adapts to selected papers
-✅ **Visual Feedback** - Notifications and progress indicators
-✅ **Responsive Design** - Works on desktop and mobile
-
-## 🎯 Next Steps
-
-1. **Try It Out** - Upload a research paper
-2. **Process It** - Add to searchable database
-3. **Select It** - Choose for focused chat
-4. **Ask Questions** - Get targeted responses
-5. **Explore Features** - Try different papers and questions
+For the REST endpoints behind this UI, see
+[API_DOCUMENTATION.md](../API_DOCUMENTATION.md).
 
 ---
 
-**Your AI Assistant is now significantly more powerful with file management capabilities!** 🚀
+## Two tabs
 
-**Access it at: http://localhost:8000**
+The top navigation switches between the two ways to query your papers.
+
+### Semantic Search
+
+Returns the matching passages themselves — no LLM, so it is fast and cheap.
+
+1. Type a query, e.g. *"attention mechanism in transformers"*.
+2. Pick how many results you want (3, 5, or 10 — default 5).
+3. Optionally narrow **In:** to a single paper, or leave it on *All papers*.
+4. Press **Enter** or click the search button.
+
+Each result shows the passage text, its source filename and page, and a match
+percentage. Scores are relative to your corpus: 45% may be the best available
+match in one collection and mediocre in another, so compare results against
+each other rather than against a fixed threshold.
+
+Example queries are provided as one-click buttons to get you started.
+
+### AI Assistant
+
+Retrieves relevant passages and has an LLM answer from them, citing the papers
+it used.
+
+1. Type a question.
+2. Press **Enter** to send (**Shift+Enter** inserts a newline).
+
+Two controls sit above the input:
+
+| Control | Effect |
+|---|---|
+| **Use paper context (RAG)** | On by default. Uncheck to answer from the model's own knowledge without consulting your papers. |
+| **Focus on** | Defaults to *All papers*. Pick one to restrict retrieval to that paper only. Only indexed papers are listed. |
+
+Answers list the sources they drew on. Follow-up questions are resolved against
+the conversation, so *"what BLEU score did it achieve?"* correctly picks up what
+"it" refers to from the previous turn.
+
+**Clear chat** discards this tab's conversation history. Do this when you switch
+topics — stale history can otherwise pull a follow-up rewrite off course.
+Other tabs are unaffected.
+
+---
+
+## Managing papers
+
+Click **Manage Files** in the AI Assistant tab to open the file manager.
+
+### Adding a paper
+
+Drag a PDF onto the upload area, or click **Browse** to pick one. A progress
+bar runs during the transfer, and the file appears in the list when it lands.
+
+**Uploading does not index the file.** A newly uploaded paper is on disk but
+not yet searchable — you must process it.
+
+### Processing
+
+Click **Process** on an uploaded file to chunk, embed, and index it. This takes
+a few seconds per paper, most of it spent generating embeddings.
+
+Re-processing a paper replaces its previous chunks rather than duplicating
+them, so it is safe to run again if you are unsure whether it worked.
+
+Once processed, the paper is available to both tabs and to the MCP tools.
+
+### Selecting
+
+Click **Select** on any file to scope the assistant to that paper. The chat tab's
+paper selector updates to match. Choose *All papers* there to search the whole
+corpus again.
+
+### Understanding the list
+
+Each file shows its size and two badges — where it came from, and whether it is
+searchable:
+
+| Badge | Meaning |
+|---|---|
+| **Existing** | Sits in `data/papers/` |
+| **Uploaded** | Sits in `data/uploads/` — added through this UI |
+| **Indexed** | Chunked and embedded; searchable now |
+| **Not indexed** | On disk only; invisible to search until processed |
+
+Anything marked *Not indexed* gets a **Process** button. An already-indexed
+file offers **Reprocess**, which is useful after replacing the PDF with a newer
+version.
+
+To check the same thing from the command line:
+
+```bash
+python cmd_basis.py list
+```
+
+---
+
+## Known limitations
+
+**Chat history is per-tab and in-memory.** Each browser tab gets its own
+conversation, and all of them are lost when the server restarts.
+
+**Bulk indexing is command-line only.** The UI processes one paper at a time.
+To index a folder of PDFs at once:
+
+```bash
+python cmd_basis.py ingest
+```
+
+**Deleting papers is not exposed in the UI.** Remove one from the index with
+`core.vectorstore.delete_source("name.pdf")`, and delete the PDF from disk
+separately.
+
+---
+
+## Troubleshooting
+
+**Search returns nothing**
+Nothing is indexed. Confirm with `python cmd_basis.py list`, then run
+`python cmd_basis.py ingest`.
+
+**A paper I uploaded is not being found**
+Uploading does not index. Look for the **Not indexed** badge on it in the file
+manager and click **Process**.
+
+**The assistant answers without using my papers**
+Check that **Use paper context (RAG)** is ticked. If it is, and search also
+returns nothing, the corpus is empty.
+
+**Selecting a paper returns no answers**
+Check its badge in the file manager — if it reads **Not indexed**, process it.
+
+**An error mentions the model does not exist**
+Groq retires models regularly. See
+[Troubleshooting](../QUICKSTART.md#troubleshooting) for how to list the models
+your key can use and update `GROQ_MODEL`.
+
+**Upload fails**
+Only `.pdf` files are accepted. Filenames are reduced to a basename, so
+directory paths in the name are stripped rather than honored.

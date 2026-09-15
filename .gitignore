@@ -45,3 +45,7 @@ vectorstore/
 
 # Logs
 *.log
+
+# Keep data dirs in the repo, not their contents
+!data/papers/.gitkeep
+!data/uploads/.gitkeep

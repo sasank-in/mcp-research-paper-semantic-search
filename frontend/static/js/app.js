@@ -27,6 +27,7 @@ const elements = {
     useRagCheckbox: document.getElementById('use-rag'),
     exampleBtns: document.querySelectorAll('.example-btn'),
     fileSelect: document.getElementById('file-select'),
+    searchFileSelect: document.getElementById('search-file-select'),
     manageFilesBtn: document.getElementById('manage-files-btn'),
     
     // Modal
@@ -43,14 +44,26 @@ const elements = {
 };
 
 // ===== API Functions =====
+// One conversation per browser tab. The API keys chat history by session_id;
+// without this every tab would share the "default" history.
+const SESSION_ID = (() => {
+    const KEY = 'rp_session_id';
+    let id = sessionStorage.getItem(KEY);
+    if (!id) {
+        id = `ui-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+        sessionStorage.setItem(KEY, id);
+    }
+    return id;
+})();
+
 const API = {
     baseURL: window.location.origin,
     
-    async search(query, topK = 5) {
+    async search(query, topK = 5, selectedFile = null) {
         const response = await fetch(`${this.baseURL}/api/search`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ query, top_k: topK })
+            body: JSON.stringify({ query, top_k: topK, selected_file: selectedFile })
         });
         
         if (!response.ok) {
@@ -68,7 +81,8 @@ const API = {
                 message, 
                 use_rag: useRag,
                 top_k: topK,
-                selected_file: selectedFile
+                selected_file: selectedFile,
+                session_id: SESSION_ID
             })
         });
         
@@ -80,9 +94,10 @@ const API = {
     },
     
     async clearChat() {
-        const response = await fetch(`${this.baseURL}/api/chat/clear`, {
-            method: 'POST'
-        });
+        const response = await fetch(
+            `${this.baseURL}/api/chat/clear?session_id=${encodeURIComponent(SESSION_ID)}`,
+            { method: 'POST' }
+        );
         
         if (!response.ok) {
             throw new Error('Clear chat failed');
@@ -183,6 +198,9 @@ const UI = {
         const html = results.map((result, index) => {
             const similarity = (result.similarity * 100).toFixed(1);
             const fileName = result.source.split('/').pop();
+            const pageLabel = result.page !== null && result.page !== undefined
+                ? ` &middot; page ${result.page + 1}`
+                : '';
             
             return`
                 <div class="result-card">
@@ -195,7 +213,7 @@ const UI = {
                     </div>
                     <div class="result-source">
                         <i class="fas fa-file-pdf"></i>
-                        ${fileName}
+                        ${fileName}${pageLabel}
                     </div>
                     <div class="result-content">
                         ${result.content}
@@ -332,6 +350,9 @@ const UI = {
         const html = state.availableFiles.map(file => {
             const sizeKB = Math.round(file.size / 1024);
             const badgeClass = file.type === 'uploaded' ? 'uploaded' : '';
+            const indexedBadge = file.indexed
+                ? '<span class="file-badge indexed"><i class="fas fa-check-circle"></i> Indexed</span>'
+                : '<span class="file-badge not-indexed"><i class="fas fa-exclamation-circle"></i> Not indexed</span>';
             
             return `
                 <div class="file-item">
@@ -344,6 +365,7 @@ const UI = {
                                 <span class="file-badge ${badgeClass}">
                                     ${file.type === 'uploaded' ? 'Uploaded' : 'Existing'}
                                 </span>
+                                ${indexedBadge}
                             </div>
                         </div>
                     </div>
@@ -352,10 +374,10 @@ const UI = {
                             <i class="fas fa-check"></i>
                             Select
                         </button>
-                        ${file.type === 'uploaded' ? `
+                        ${!file.indexed || file.type === 'uploaded' ? `
                             <button class="btn btn-secondary process-file-btn" data-filename="${file.name}">
                                 <i class="fas fa-cog"></i>
-                                Process
+                                ${file.indexed ? 'Reprocess' : 'Process'}
                             </button>
                         ` : ''}
                     </div>
@@ -382,19 +404,28 @@ const UI = {
     },
     
     updateFileSelect() {
-        const select = elements.fileSelect;
-        select.innerHTML = '<option value="">All papers</option>';
-        
-        state.availableFiles.forEach(file => {
-            const option = document.createElement('option');
-            option.value = file.name;
-            option.textContent = file.name;
-            select.appendChild(option);
+        // Only indexed papers can be searched, so don't offer the rest.
+        const indexed = state.availableFiles.filter(f => f.indexed);
+
+        [elements.fileSelect, elements.searchFileSelect].forEach(select => {
+            if (!select) return;
+            const previous = select.value;
+            select.innerHTML = '<option value="">All papers</option>';
+
+            indexed.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file.name;
+                option.textContent = file.name;
+                select.appendChild(option);
+            });
+
+            const wanted = select === elements.fileSelect
+                ? (state.selectedFile || previous)
+                : previous;
+            if (wanted && indexed.some(f => f.name === wanted)) {
+                select.value = wanted;
+            }
         });
-        
-        if (state.selectedFile) {
-            select.value = state.selectedFile;
-        }
     },
     
     selectFile(filename) {
@@ -458,10 +489,11 @@ const handlers = {
         }
         
         const topK = parseInt(elements.topKSelect.value);
+        const selectedFile = elements.searchFileSelect?.value || null;
         
         try {
             UI.showLoading();
-            const results = await API.search(query, topK);
+            const results = await API.search(query, topK, selectedFile);
             UI.renderSearchResults(results);
         } catch (error) {
             UI.showError(error.message);

@@ -1,78 +1,73 @@
 #!/usr/bin/env python3
-"""
-Quick start script for the Research Paper AI Assistant UI
-"""
+"""Start the Research Paper AI Assistant web UI."""
 import os
 import sys
-from dotenv import load_dotenv
 
-def check_requirements():
-    """Check if all requirements are met"""
-    print("Checking requirements...")
-    
-    # Check .env file
-    if not os.path.exists('.env'):
-        print("ERROR: .env file not found!")
-        print("   Please copy .env.example to .env and configure it")
+
+def check_requirements() -> bool:
+    """Verify configuration before starting the server."""
+    if not os.path.exists(".env"):
+        print("ERROR: .env file not found.")
+        print("  Copy .env.example to .env and configure it.")
         return False
-    
-    load_dotenv()
-    
-    # Check Groq API key
-    groq_key = os.getenv('GROQ_API_KEY')
-    if not groq_key or groq_key == 'your_groq_api_key_here':
-        print("ERROR: GROQ_API_KEY not configured!")
-        print("   Please add your Groq API key to .env")
-        print("   Get one at: https://console.groq.com")
+
+    from core import config
+
+    if not config.GROQ_API_KEY or config.GROQ_API_KEY == "your_api_key_here":
+        print("ERROR: GROQ_API_KEY is not configured in .env")
+        print("  Get a key at https://console.groq.com")
         return False
-    
-    # Check database config
-    db_name = os.getenv('DB_NAME')
-    if not db_name:
-        print("ERROR: Database not configured!")
-        print("   Please configure database settings in .env")
+
+    if not os.path.exists("frontend/index.html"):
+        print("ERROR: frontend/index.html not found.")
         return False
-    
-    # Check frontend files
-    if not os.path.exists('frontend/index.html'):
-        print("ERROR: Frontend files not found!")
-        print("   Please ensure frontend/ directory exists")
+
+    # Confirm the database is reachable before binding the port.
+    try:
+        import sqlalchemy
+
+        engine = sqlalchemy.create_engine(config.CONNECTION_STRING)
+        with engine.connect():
+            pass
+        engine.dispose()
+    except Exception as exc:
+        print(f"ERROR: cannot connect to PostgreSQL: {exc}")
+        print("  Check the DB_* settings in .env, then run:")
+        print("    python cmd_basis.py setup")
         return False
-    
-    print("SUCCESS: All requirements met!")
+
     return True
 
-def start_server():
-    """Start the FastAPI server"""
-    print("\n" + "="*60)
-    print("Starting Research Paper AI Assistant")
-    print("="*60)
-    print("\nAccess the application at:")
-    print("   Web UI:  http://localhost:8000")
-    print("   API Docs: http://localhost:8000/docs")
-    print("\nFeatures:")
-    print("   - Semantic Search - Search papers by meaning")
-    print("   - AI Chat - Interactive assistant with RAG")
-    print("\nPress Ctrl+C to stop the server")
-    print("="*60 + "\n")
-    
-    import uvicorn
-    from api.app import app
-    
-    uvicorn.run(app, host="127.0.0.1", port=8000)
 
 def main():
     if not check_requirements():
-        print("\nPlease fix the issues above and try again")
         sys.exit(1)
-    
+
+    from core import config
+    from core.vectorstore import list_sources
+
+    papers = list_sources()
+
+    print("=" * 60)
+    print("Research Paper AI Assistant")
+    print("=" * 60)
+    print(f"  Web UI:   http://127.0.0.1:8000/")
+    print(f"  API docs: http://127.0.0.1:8000/docs")
+    print(f"  Model:    {config.GROQ_MODEL}")
+    print(f"  Papers:   {len(papers)} indexed")
+    if not papers:
+        print("            (add PDFs to data/papers, then: "
+              "python cmd_basis.py ingest)")
+    print("\nPress Ctrl+C to stop.")
+    print("=" * 60 + "\n")
+
+    import uvicorn
+
     try:
-        start_server()
+        uvicorn.run("api.app:app", host="127.0.0.1", port=8000)
     except KeyboardInterrupt:
-        print("\n\nServer stopped. Goodbye!")
-    except Exception as e:
-        print(f"\nError: {e}")
-        sys.exit(1)
+        print("\nServer stopped.")
+
 
 if __name__ == "__main__":
     main()

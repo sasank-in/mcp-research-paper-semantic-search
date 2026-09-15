@@ -872,6 +872,14 @@ body {
     background: var(--success-color);
 }
 
+.file-badge.indexed {
+    background: var(--success-color);
+}
+
+.file-badge.not-indexed {
+    background: var(--warning-color);
+}
+
 .loading-text {
     text-align: center;
     color: var(--text-tertiary);

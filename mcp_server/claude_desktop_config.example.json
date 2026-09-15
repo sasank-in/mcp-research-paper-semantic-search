@@ -1,0 +1,10 @@
+{
+  "_comment": "Copy into your Claude Desktop config and replace both paths. On Windows the config lives at %APPDATA%\\Claude\\claude_desktop_config.json; on macOS at ~/Library/Application Support/Claude/claude_desktop_config.json. Use the absolute path to the Python interpreter of the environment where requirements.txt is installed (find it with: python -c \"import sys; print(sys.executable)\"), and set cwd to this repository's directory so data/papers and data/uploads resolve correctly. Windows paths need escaped backslashes.",
+  "mcpServers": {
+    "research-papers": {
+      "command": "C:\\path\\to\\envs\\environ\\python.exe",
+      "args": ["-m", "mcp_server.server"],
+      "cwd": "C:\\path\\to\\mcp-research-paper-semantic-search"
+    }
+  }
+}

@@ -1,89 +1,112 @@
-# Quick Start Guide
-
-Get up and running in 5 minutes!
+#  Quick Start Guide
 
 ## Prerequisites
 
-- Python 3.8+
-- PostgreSQL 12+ with pgvector extension
-- 2GB free disk space
+- Conda environment `environ` (Python 3.12)
+- PostgreSQL 12+ with the `pgvector` extension
+- A Groq API key — https://console.groq.com
 
-## Installation
-
-### 1. Clone and Install
+## 1. Install
 
 ```bash
-# Install Python dependencies
+conda activate environ
 pip install -r requirements.txt
-
-# Copy environment file
 cp .env.example .env
 ```
 
-### 2. Configure Database
+## 2. Configure
 
-Edit `.env` with your PostgreSQL credentials:
+Edit `.env`:
+
 ```
+DB_NAME=vector_db
 DB_USER=postgres
 DB_PASSWORD=your_password
+DB_HOST=localhost
+DB_PORT=5432
+DB_COLLECTION=paper_chunks
+
+GROQ_API_KEY=your_key_here
+GROQ_MODEL=openai/gpt-oss-120b
 ```
 
-### 3. Setup
+## 3. Create the tables
 
 ```bash
-# Create database and tables
-python main.py setup
+python cmd_basis.py setup
 ```
 
-### 4. Ingest Papers
+## 4. Add and index papers
+
+Drop PDFs into `data/papers/`, then:
 
 ```bash
-# Process PDFs and create embeddings
-python main.py ingest
+python cmd_basis.py ingest
 ```
 
-This takes 2-5 minutes depending on the number of papers.
+Re-running `ingest` replaces a paper's chunks rather than duplicating them,
+so it is safe to run repeatedly.
 
-### 5. Search
+## 5. Use it
 
 ```bash
-# Search for papers
-python main.py search "attention mechanism in transformers"
+# Semantic search (no LLM)
+python cmd_basis.py search "attention mechanism in transformers"
+
+# Ask a question, answered with citations
+python cmd_basis.py ask "How does multi-head attention work?"
+
+# Restrict either to one paper
+python cmd_basis.py ask "What is the main result?" --file attention.pdf
+
+# List what is indexed
+python cmd_basis.py list
+
+# Web UI + REST API at http://127.0.0.1:8000
+python cmd_basis.py api
 ```
 
-## That's it!
+## 6. Use as an MCP server
 
-You now have a working semantic search system.
-
-## Optional: Start API
+Expose your papers as tools to an MCP client such as Claude Desktop:
 
 ```bash
-python main.py api
+python cmd_basis.py mcp     # or: python -m mcp_server.server
 ```
 
-Visit http://localhost:8000/docs for interactive API documentation.
+Copy `mcp_server/claude_desktop_config.example.json` into your Claude Desktop
+config (`%APPDATA%\Claude\claude_desktop_config.json` on Windows) and restart
+the app. Four tools become available:
 
-## Next Steps
+| Tool | Purpose |
+|---|---|
+| `search_papers` | Raw passages with source and similarity score |
+| `ask_papers` | Synthesized answer with citations |
+| `list_papers` | What is indexed, and what is on disk but not yet indexed |
+| `ingest_pdf` | Index a PDF sitting in `data/papers` or `data/uploads` |
 
-- Add more PDFs to `data/papers/` and run `python main.py ingest` again
-- Read `USAGE.md` for detailed usage instructions
-- Check `SETUP.md` for troubleshooting
+## Troubleshooting
 
-## Common Issues
-
-**"pgvector extension not found"**
-- Install pgvector: https://github.com/pgvector/pgvector#installation
-
-**"Connection refused"**
-- Start PostgreSQL: `sudo systemctl start postgresql`
-
-**"No PDFs found"**
-- Ensure PDFs are in `data/papers/` directory
-
-## Test Your Setup
+**`certificate verify failed` / `SSL_CERT_FILE` FileNotFoundError**
+Conda sets `SSL_CERT_FILE` to a path that may not exist. Point it at certifi:
 
 ```bash
-python test_system.py
+export SSL_CERT_FILE="$(python -c 'import certifi;print(certifi.where())')"
 ```
 
-This runs a quick diagnostic to verify everything is working.
+This repo's `environ` env already has an activation hook doing this.
+
+**`model does not exist or you do not have access to it`**
+Groq retires models regularly. List what your key can use:
+
+```bash
+python -c "from groq import Groq; from core import config; print([m.id for m in Groq(api_key=config.GROQ_API_KEY).models.list().data])"
+```
+
+then set `GROQ_MODEL` in `.env` accordingly.
+
+**`pgvector extension not found`**
+Install it: https://github.com/pgvector/pgvector#installation
+
+**Search returns nothing**
+Check that papers are indexed with `python cmd_basis.py list`.
