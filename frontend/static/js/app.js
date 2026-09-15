@@ -408,10 +408,12 @@ const UI = {
                         </div>
                     </div>
                     <div class="file-actions">
-                        <button class="btn btn-primary select-file-btn" data-filename="${file.name}">
-                            <i class="fas fa-check"></i>
-                            Select
-                        </button>
+                        ${file.indexed ? `
+                            <button class="btn btn-primary select-file-btn" data-filename="${file.name}">
+                                <i class="fas fa-check"></i>
+                                Select
+                            </button>
+                        ` : ''}
                         ${!file.indexed || file.type === 'uploaded' ? `
                             <button class="btn btn-secondary process-file-btn" data-filename="${file.name}">
                                 <i class="fas fa-cog"></i>
@@ -462,11 +464,24 @@ const UI = {
                 : previous;
             if (wanted && indexed.some(f => f.name === wanted)) {
                 select.value = wanted;
+            } else if (select === elements.fileSelect && state.selectedFile) {
+                // Previously selected paper is no longer searchable.
+                state.selectedFile = null;
+                select.value = '';
             }
         });
     },
     
     selectFile(filename) {
+        const file = (state.availableFiles || []).find(f => f.name === filename);
+        if (file && !file.indexed) {
+            this.showNotification(
+                `${filename} is not indexed yet. Click Process first.`,
+                'error'
+            );
+            return;
+        }
+
         state.selectedFile = filename;
         elements.fileSelect.value = filename;
         this.hideModal();

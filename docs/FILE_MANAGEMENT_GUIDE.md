@@ -84,9 +84,12 @@ Once processed, the paper is available to both tabs and to the MCP tools.
 
 ### Selecting
 
-Click **Select** on any file to scope the assistant to that paper. The chat tab's
-paper selector updates to match. Choose *All papers* there to search the whole
-corpus again.
+Click **Select** on an indexed file to scope the assistant to that paper. The
+chat tab's **Focus on** selector updates to match; choose *All papers* there to
+query the whole corpus again.
+
+Papers that are not indexed offer no Select button and do not appear in either
+selector, since they cannot be searched. Process them first.
 
 ### Understanding the list
 
