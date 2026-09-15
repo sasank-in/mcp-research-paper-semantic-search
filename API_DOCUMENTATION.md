@@ -468,6 +468,11 @@ do not reload the model.
 
 ## CLI
 
+Start the server with `python main.py` — it runs the same app as
+`cmd_basis.py api` but checks your configuration and database connection
+first. Use the `api` subcommand below only when you need a non-default host or
+port.
+
 ```bash
 python cmd_basis.py setup                      # create extension + tables
 python cmd_basis.py ingest                     # index data/papers
@@ -475,7 +480,7 @@ python cmd_basis.py ingest --file paper.pdf    # index one file
 python cmd_basis.py search "query" --top-k 5   # semantic search
 python cmd_basis.py ask "question"             # answer with citations
 python cmd_basis.py list                       # list indexed papers
-python cmd_basis.py api --port 8000            # web UI + REST API
+python cmd_basis.py api --port 8080            # web UI + REST API, custom port
 python cmd_basis.py mcp                        # MCP server over stdio
 ```
 

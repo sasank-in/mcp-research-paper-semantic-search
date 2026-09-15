@@ -216,9 +216,3 @@ def process_file(filename: str):
         }
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="127.0.0.1", port=8000)

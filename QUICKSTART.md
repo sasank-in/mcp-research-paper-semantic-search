@@ -61,12 +61,31 @@ python cmd_basis.py ask "What is the main result?" --file attention.pdf
 
 # List what is indexed
 python cmd_basis.py list
-
-# Web UI + REST API at http://127.0.0.1:8000
-python cmd_basis.py api
 ```
 
-## 6. Use as an MCP server
+## 6. Start the server
+
+```bash
+python main.py
+```
+
+Then open http://127.0.0.1:8000 — the web UI and the REST API are both served
+there, with interactive API docs at `/docs`.
+
+`main.py` verifies your `.env`, API key, frontend files, and database
+connection *before* binding the port, so a misconfiguration is reported with a
+fix rather than surfacing later as a failed search. Use it unless you need a
+different address:
+
+```bash
+python cmd_basis.py api --port 8080
+python cmd_basis.py api --host 0.0.0.0    # reachable from other machines
+```
+
+Note that CORS is wide open by default, so tighten it before binding to a
+public interface.
+
+## 7. Use as an MCP server
 
 Expose your papers as tools to an MCP client such as Claude Desktop:
 

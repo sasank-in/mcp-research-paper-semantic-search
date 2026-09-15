@@ -3,9 +3,7 @@
 How to use the browser interface at `http://127.0.0.1:8000`. Start it with:
 
 ```bash
-python main.py                 # with preflight checks
-# or
-python cmd_basis.py api
+python main.py
 ```
 
 For the REST endpoints behind this UI, see

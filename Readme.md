@@ -37,7 +37,7 @@ python cmd_basis.py ingest
 
 python cmd_basis.py search "attention mechanism in transformers"
 python cmd_basis.py ask "How does multi-head attention work?"
-python cmd_basis.py api       # web UI at http://127.0.0.1:8000
+python main.py                # web UI at http://127.0.0.1:8000
 ```
 
 Full setup and troubleshooting: **[QUICKSTART.md](QUICKSTART.md)**
@@ -46,8 +46,8 @@ Full setup and troubleshooting: **[QUICKSTART.md](QUICKSTART.md)**
 
 | Interface | Start with | Reference |
 |---|---|---|
-| Web UI | `python cmd_basis.py api` | http://127.0.0.1:8000 |
-| REST API | `python cmd_basis.py api` | [API_DOCUMENTATION.md](API_DOCUMENTATION.md#rest-api) |
+| Web UI | `python main.py` | http://127.0.0.1:8000 |
+| REST API | `python main.py` | [API_DOCUMENTATION.md](API_DOCUMENTATION.md#rest-api) |
 | MCP server | `python cmd_basis.py mcp` | [API_DOCUMENTATION.md](API_DOCUMENTATION.md#mcp-tools) |
 | CLI | `python cmd_basis.py --help` | [API_DOCUMENTATION.md](API_DOCUMENTATION.md#cli) |
 | Python | `from core import rag` | [API_DOCUMENTATION.md](API_DOCUMENTATION.md#python-api) |
@@ -102,7 +102,7 @@ api/app.py               FastAPI REST API + web UI
 mcp_server/server.py     MCP server (stdio)
 frontend/                Web UI (vanilla HTML/CSS/JS)
 cmd_basis.py             CLI entry point
-main.py                  Web UI launcher with preflight checks
+main.py                  Server launcher (preflight checks, then serves)
 data/papers/             Source PDFs
 data/uploads/            Uploaded PDFs
 ```
