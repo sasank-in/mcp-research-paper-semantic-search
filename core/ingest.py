@@ -9,6 +9,15 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 from core import config
 from core.vectorstore import add_documents, delete_source
 
+
+class NoExtractableText(ValueError):
+    """Raised when a PDF yields no text.
+
+    Almost always a scanned document: the pages are images, with no text
+    layer for pypdf to read. Such a file needs OCR before it can be indexed.
+    """
+
+
 _splitter = RecursiveCharacterTextSplitter(
     chunk_size=config.CHUNK_SIZE,
     chunk_overlap=config.CHUNK_OVERLAP,
@@ -44,11 +53,18 @@ def ingest_pdf(path: str | Path, replace: bool = True) -> dict:
 
     documents = load_pdf(path)
     if not documents:
-        raise ValueError(f"No text extracted from {path.name}")
+        raise NoExtractableText(
+            f"{path.name} could not be read as a PDF, or contains no pages."
+        )
 
     chunks = chunk(documents)
     if not chunks:
-        raise ValueError(f"No chunks produced from {path.name}")
+        raise NoExtractableText(
+            f"No text could be extracted from {path.name}. It has "
+            f"{len(documents)} page(s) but no text layer, which means it is "
+            f"most likely a scanned document. Run it through OCR "
+            f"(e.g. ocrmypdf) and upload the result."
+        )
 
     if replace:
         delete_source(path.name)

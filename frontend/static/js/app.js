@@ -56,6 +56,24 @@ const SESSION_ID = (() => {
     return id;
 })();
 
+// FastAPI reports failures as {"detail": "..."}. Prefer that text over a
+// generic message so the user sees what actually went wrong.
+async function apiError(response, fallback) {
+    try {
+        const body = await response.json();
+        if (body && body.detail) {
+            return new Error(
+                typeof body.detail === 'string'
+                    ? body.detail
+                    : JSON.stringify(body.detail)
+            );
+        }
+    } catch (e) {
+        // Response had no JSON body; fall through.
+    }
+    return new Error(fallback);
+}
+
 const API = {
     baseURL: window.location.origin,
     
@@ -67,7 +85,7 @@ const API = {
         });
         
         if (!response.ok) {
-            throw new Error('Search failed');
+            throw await apiError(response, 'Search failed');
         }
         
         return await response.json();
@@ -87,7 +105,7 @@ const API = {
         });
         
         if (!response.ok) {
-            throw new Error('Chat failed');
+            throw await apiError(response, 'Chat failed');
         }
         
         return await response.json();
@@ -100,7 +118,7 @@ const API = {
         );
         
         if (!response.ok) {
-            throw new Error('Clear chat failed');
+            throw await apiError(response, 'Clear chat failed');
         }
         
         return await response.json();
@@ -110,7 +128,7 @@ const API = {
         const response = await fetch(`${this.baseURL}/api/files`);
         
         if (!response.ok) {
-            throw new Error('Failed to get files');
+            throw await apiError(response, 'Failed to get files');
         }
         
         return await response.json();
@@ -126,7 +144,7 @@ const API = {
         });
         
         if (!response.ok) {
-            throw new Error('File upload failed');
+            throw await apiError(response, 'File upload failed');
         }
         
         return await response.json();
@@ -138,7 +156,7 @@ const API = {
         });
         
         if (!response.ok) {
-            throw new Error('File processing failed');
+            throw await apiError(response, 'File processing failed');
         }
         
         return await response.json();
@@ -470,11 +488,13 @@ const UI = {
         // Show with animation
         setTimeout(() => notification.classList.add('show'), 100);
         
-        // Remove after 3 seconds
+        // Errors can carry a full explanation (e.g. why a PDF has no text),
+        // so give them long enough to actually read.
+        const duration = type === 'error' ? 12000 : 3000;
         setTimeout(() => {
             notification.classList.remove('show');
             setTimeout(() => notification.remove(), 300);
-        }, 3000);
+        }, duration);
     }
 };
 

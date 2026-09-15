@@ -291,11 +291,21 @@ Errors return a JSON body with a `detail` string.
 |---|---|---|
 | `400` | Bad request | Non-PDF filename, or a name that sanitizes to nothing |
 | `404` | Not found | Named PDF is not in `data/papers` or `data/uploads` |
-| `422` | Validation error | Malformed body — wrong types or a missing required field |
+| `422` | Unprocessable | Malformed body, or a PDF with no extractable text (see below) |
 | `500` | Server error | Database unreachable, or the LLM provider rejected the call |
 
 A `500` mentioning `model ... does not exist` means `GROQ_MODEL` names a model
 your key cannot use — see [Troubleshooting](QUICKSTART.md#troubleshooting).
+
+A `422` from the process endpoint saying no text could be extracted means the
+PDF has no text layer — its pages are images. Scanned papers must be run
+through OCR before they can be indexed:
+
+```bash
+ocrmypdf scanned.pdf searchable.pdf
+```
+
+Then upload and process `searchable.pdf` instead.
 
 ---
 

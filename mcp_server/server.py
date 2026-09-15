@@ -15,6 +15,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from mcp.server.mcpserver import MCPServer
 
 from core import config, ingest, rag, vectorstore
+from core.ingest import NoExtractableText
 from core.paths import resolve_pdf, safe_filename
 
 mcp = MCPServer(
@@ -121,7 +122,10 @@ def ingest_pdf(filename: str) -> str:
             f"'{safe_filename(filename)}' not found in {config.PAPERS_DIR} "
             f"or {config.UPLOADS_DIR}."
         )
-    result = ingest.ingest_pdf(path)
+    try:
+        result = ingest.ingest_pdf(path)
+    except NoExtractableText as exc:
+        return str(exc)
     return (
         f"Indexed {result['filename']}: {result['pages']} pages, "
         f"{result['chunks']} chunks."

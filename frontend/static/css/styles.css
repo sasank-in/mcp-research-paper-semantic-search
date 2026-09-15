@@ -975,6 +975,16 @@ body {
     opacity: 1;
 }
 
+/* Error notifications carry longer, multi-sentence explanations. */
+.notification-error {
+    max-width: 560px;
+    align-items: flex-start;
+}
+
+.notification-error span {
+    line-height: 1.45;
+}
+
 .notification-success {
     border-left-color: var(--success-color);
 }

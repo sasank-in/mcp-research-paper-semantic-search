@@ -12,6 +12,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from core import config, ingest, rag, vectorstore
+from core.ingest import NoExtractableText
 from core.paths import resolve_pdf, safe_filename, upload_path
 
 app = FastAPI(
@@ -214,5 +215,7 @@ def process_file(filename: str):
             "pages": result["pages"],
             "chunks_inserted": result["chunks"],
         }
+    except NoExtractableText as exc:
+        raise HTTPException(status_code=422, detail=str(exc))
     except Exception as exc:
         raise HTTPException(status_code=500, detail=str(exc))

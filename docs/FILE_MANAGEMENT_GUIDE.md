@@ -151,3 +151,15 @@ your key can use and update `GROQ_MODEL`.
 **Upload fails**
 Only `.pdf` files are accepted. Filenames are reduced to a basename, so
 directory paths in the name are stripped rather than honored.
+
+**Processing fails with "no text could be extracted"**
+The PDF has no text layer — its pages are images, which is normal for scanned
+documents and for some exported slide decks. Nothing can index it as-is. Run
+it through OCR first:
+
+```bash
+ocrmypdf scanned.pdf searchable.pdf
+```
+
+Then upload `searchable.pdf`. To check a file before uploading, open it in a
+PDF viewer and try to select text: if you cannot, neither can the indexer.
