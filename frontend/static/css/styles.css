@@ -736,6 +736,15 @@ body {
     background: var(--bg-primary);
 }
 
+/* Inline code produced by formatMessage. */
+.message-bubble code {
+    padding: 0.1rem 0.35rem;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-sm);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.9em;
+}
+
 /* ===== Modal ===== */
 .modal {
     display: none;

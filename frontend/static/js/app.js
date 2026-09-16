@@ -57,6 +57,17 @@ const SESSION_ID = (() => {
     return id;
 })();
 
+// Escape untrusted text before it reaches innerHTML. Paper content and model
+// output are data, not markup.
+function escapeHtml(text) {
+    return String(text ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 // FastAPI reports failures as {"detail": "..."}. Prefer that text over a
 // generic message so the user sees what actually went wrong.
 async function apiError(response, fallback) {
@@ -251,10 +262,10 @@ const UI = {
                     </div>
                     <div class="result-source">
                         <i class="fas fa-file-pdf"></i>
-                        ${fileName}${pageLabel}
+                        ${escapeHtml(fileName)}${pageLabel}
                     </div>
                     <div class="result-content">
-                        ${result.content}
+                        ${escapeHtml(result.content)}
                     </div>
                 </div>
             `;
@@ -318,10 +329,11 @@ const UI = {
     },
     
     formatMessage(text) {
-        // Convert markdown-style formatting
-        return text
+        // Escape first so the only markup produced is our own.
+        return escapeHtml(text)
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, '<code>$1</code>')
             .replace(/\n/g, '<br>');
     },
     
